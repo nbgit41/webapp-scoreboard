@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>GameBoard</title>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/static/global.css?v={{ timestamp }}">
+        <link rel="stylesheet" href="/static/font.css?v={{ timestamp }}">
+        <link rel="stylesheet" href="/static/scoreboard.css?v={{ timestamp }}">
+    </head>
+    <body>
+        <div class="vignette"></div>
+
+        <div class="scoreboard">
+            <div id="timer-container" class="timer">
+                <h1 id="timer"></h1>
+            </div>
+            <div id="scores" class="scores">
+            </div>
+            <div id="baseball-stuff" class="baseball-stuff">
+                <div id="balls" class="balls">
+                    <h1>Balls</h1>
+                    <h2 id="balls-number"></h2>
+                </div>
+                <div id="strikes" class="strikes">
+                    <h1>Strikes</h1>
+                    <h2 id="strikes-number"></h2>
+                </div>
+                <div id="outs" class="outs">
+                    <h1>Outs</h1>
+                    <h2 id="outs-number"></h2>
+                </div>
+                <div id="innings" class="innings">
+                    <h1>Innings</h1>
+                    <h2 id="inning-number"></h2>
+                </div>
+            </div>
+        </div>
+
+        <script src="/static/scoreboard.js?v={{ timestamp }}"></script>
+
+    </body>
+</html>

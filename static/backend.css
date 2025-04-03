@@ -1,0 +1,103 @@
+:root {
+  --scale: 0.5;
+  --base-margin: calc(-10vw + -5vh);
+}
+
+.scoreboard {
+    background-color: rgba(00,00,00,.1);
+    border: calc(.5vw + .25vh) solid #454545;
+    border-radius: calc(2vw + 1vh);
+    box-shadow: black 5px 5px 20px 1px;
+    transform: scale(var(--scale));
+    margin: calc(var(--base-margin) * var(--scale));
+}
+
+
+#team-selection, .buttons {
+    font-size: calc(1vw + 1vh);
+    position: relative;
+    align-content: center;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    column-gap: 20px;
+}
+
+#add-team-form, #change-team-form, #remove-team-form, .timer-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+
+    row-gap: calc(1vw + 1vh);
+    width: fit-content;
+    margin: auto;
+    max-width: fit-content;
+}
+
+.timer-controls, .add-team-container, .change-team-container, .remove-team-container, .baseball-controls {
+    background-color: rgba(00,00,00,.1);
+    border: calc(.5vw + .25vh) solid #454545;
+    border-radius: calc(2vw + 1vh);
+    box-shadow: black 5px 5px 20px 1px;
+}
+
+.remove-team-container, .change-team-container, .add-team-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+
+    margin: auto;
+}
+
+.top-bit-part-one-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+
+    margin: auto;
+}
+
+.top-bit {
+    font-size: calc(1vw + 1vh);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+
+    column-gap: calc(1vw + 1vh);
+    row-gap: calc(1vw + 1vh);
+}
+
+
+.controls-container {
+    font-size: calc(.5vw + .5vh);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+
+    column-gap: calc(.5vw + .5vh);
+    row-gap: calc(.5vw + .5vh);
+}
+
+.top-bit .button {
+    font-size: calc(.5vw + .5vh);
+}

@@ -1,0 +1,5 @@
+{
+  "deb": false,
+  "port": 8540,
+  "run_locally": false
+}

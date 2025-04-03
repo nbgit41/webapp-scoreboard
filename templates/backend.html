@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Backend</title>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/static/global.css?v={{ timestamp }}">
+        <link rel="stylesheet" href="/static/font.css?v={{ timestamp }}">
+        <link rel="stylesheet" href="/static/scoreboard.css?v={{ timestamp }}">
+        <link rel="stylesheet" href="/static/backend.css?v={{ timestamp }}">
+    </head>
+    <body>
+        <div class="vignette"></div>
+
+        <div class="top-bit">
+            <div class="top-bit-part-one-container">
+                <div class="team-selection-container">
+                    <h3>Team Selection</h3>
+                    <div id="team-selection" class="team-selection"></div>
+                </div>
+
+                <br>
+
+                <div class="buttons">
+                    <div class="score-up">
+                        <input class="button" type="button" value="+" onclick="changeScore('1')">
+                    </div>
+                    <div class="score-down">
+                        <input class="button" type="button" value="-" onclick="changeScore('-1')">
+                    </div>
+                    <div class="baseball-mode-switch">
+                        <h6>B-ball mode</h6>
+                        <label class="switch" id="baseball-mode-label">
+                            <input id="baseball-mode-toggle" type="checkbox" onchange="baseballModeToggle()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="timer-toggle-container">
+                        <h6>Timer Toggle</h6>
+                        <label class="switch" id="timer-toggle-label">
+                            <input id="timer-toggle-toggle" type="checkbox" onchange="timerToggle()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scoreboard">
+                <div id="timer-container" class="timer">
+                    <h1 id="timer">00:00</h1>
+                </div>
+                <br>
+                <div id="scores" class="scores">
+                </div>
+                <br>
+                <div id="baseball-stuff" class="baseball-stuff">
+                    <div id="balls" class="balls">
+                        <h1>Balls</h1>
+                        <h2 id="balls-number"></h2>
+                    </div>
+                    <div id="strikes" class="strikes">
+                        <h1>Strikes</h1>
+                        <h2 id="strikes-number"></h2>
+                    </div>
+                    <div id="outs" class="outs">
+                        <h1>Outs</h1>
+                        <h2 id="outs-number"></h2>
+                    </div>
+                    <div id="innings" class="innings">
+                        <h1>Innings</h1>
+                        <h2 id="inning-number"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="controls-container">
+
+            <div class="baseball-controls">
+                <div id="balls-control" class="balls-control">
+                    <h6>balls</h6>
+                    <input class="button" type="button" value="+" onclick="changeBaseballValue('balls', 1)">
+                    <input class="button" type="button" value="-" onclick="changeBaseballValue('balls', -1)">
+                </div>
+                <div id="strikes-control" class="strikes-control">
+                    <h6>strikes</h6>
+                    <input class="button" type="button" value="+" onclick="changeBaseballValue('strikes', 1)">
+                    <input class="button" type="button" value="-" onclick="changeBaseballValue('strikes', -1)">
+                </div>
+                <div id="outs-control" class="outs-control">
+                    <h6>outs</h6>
+                    <input class="button" type="button" value="+" onclick="changeBaseballValue('outs', 1)">
+                    <input class="button" type="button" value="-" onclick="changeBaseballValue('outs', -1)">
+                </div>
+                <div id="inning-control" class="inning-control">
+                    <h6>inning</h6>
+                    <input class="button" type="button" value="+" onclick="changeBaseballValue('inning', 1)">
+                    <input class="button" type="button" value="-" onclick="changeBaseballValue('inning', -1)">
+                </div>
+            </div>
+
+            <br>
+
+            <div class="timer-controls">
+                <input class="button" type="button" value="Start Timer" onclick="startTimer()">
+                <input class="button" type="button" value="Pause Timer" onclick="pauseTimer()">
+                <input class="button" type="button" value="Reset Timer" onclick="resetTimer()">
+                <input class="input" type="text" value="Set Timer" onclick="setTimer()">
+            </div>
+
+            <br>
+
+            <div class="add-team-container">
+                <h3>Add Team</h3>
+                <form id="add-team-form">
+                    <input class="input" type="text" name="team-name" placeholder="Team Name" required>
+                    <input class="input" type="text" name="team-points" placeholder="Team Points" required>
+                    <input class="input" type="text" name="team-color" placeholder="Team Color" required>
+                    <input class="button" type="submit" value="Add Team">
+                </form>
+            </div>
+
+            <br>
+
+            <div class="change-team-container">
+                <h3>Change Team</h3>
+                <form id="change-team-form">
+                    <input class="input" type="text" name="team-name" placeholder="Team Name" required>
+                    <input class="input" type="text" name="team-new-name" placeholder="New Team Name" required>
+                    <input class="input" type="text" name="team-points" placeholder="Team Points" required>
+                    <input class="input" type="text" name="team-color" placeholder="Team Color" required>
+                    <input class="button" type="submit" value="Change Team">
+                </form>
+            </div>
+
+            <br>
+
+            <div class="remove-team-container">
+                <h3>Remove Team</h3>
+                <form id="remove-team-form">
+                    <input class="input" type="text" name="team-name" placeholder="Team Name" required>
+                    <input class="button" type="submit" value="Remove Team">
+                </form>
+            </div>
+        </div>
+
+        <script src="/static/scoreboard.js?v={{ timestamp }}"></script>
+        <script src="/static/backend.js?v={{ timestamp }}"></script>
+    </body>
+</html>

@@ -1,0 +1,68 @@
+.team-score {
+    /*background-color: rgba(00,00,00,.1);*/
+    border: calc(.5vw + .25vh) solid #454545;
+    border-radius: calc(2vw + 1vh);
+    box-shadow: black 5px 5px 20px 1px;
+}
+
+.text {
+    margin: calc(.5vw + .25vh);
+}
+
+.timer {
+    border: calc(.5vw + .25vh) solid #454545;
+    border-radius: calc(2vw + 1vh);
+    box-shadow: black 5px 5px 20px 1px;
+}
+
+.scores {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+
+    column-gap: 20px;
+
+    max-height: fit-content;
+    max-width: fit-content;
+
+}
+
+.baseball-stuff {
+    position: absolute;
+
+    bottom: 1%;
+    left: 50%;
+    transform: translate(-50%, -1%);
+
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+
+    column-gap: calc(.5vw + .5vh);
+}
+
+.balls {
+    color: greenyellow;
+}
+
+.strikes {
+    color: yellow;
+}
+
+.outs {
+    color: red;
+}
+
+.innings {
+    color: cyan;
+}
