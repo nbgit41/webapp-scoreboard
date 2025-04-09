@@ -18,7 +18,7 @@ else:
 deb = config.get("deb", True)
 port_poggies = config.get("port", 8540)
 run_locally = config.get("run_locally", True)
-GAME_FILE = "game.json"
+SCOREBOARD_FILE = "scoreboard.json"
 
 # Global dictionary to store baseball state
 baseball_stats = {
@@ -47,7 +47,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True # this is the thing that makes it so 
 
 @app.route("/get-game-json")
 def get_game_json():
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
     return jsonify(game_data)
 
@@ -60,7 +60,7 @@ def change_scores(team, amount):
         return jsonify({"error": "Invalid amount"}), 400
 
     # Load game data from file
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     # Ensure Scores exists and is initialized for each team
@@ -77,14 +77,14 @@ def change_scores(team, amount):
     game_data["Scores"][team_index] += amount
 
     # Write back the updated data to the JSON file
-    with open(GAME_FILE, "w") as game_file:
+    with open(SCOREBOARD_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
 
 @app.route("/get-scores")
 def get_scores():
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
     return jsonify(game_data)
 
@@ -106,7 +106,7 @@ def add_team():
         return jsonify({"error": "Invalid team points value"}), 400
 
     # Load game data from file
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     # Initialize keys if they don't exist
@@ -123,7 +123,7 @@ def add_team():
     game_data["Colors"].append(team_color)
 
     # Write the updated data back to the JSON file
-    with open(GAME_FILE, "w") as game_file:
+    with open(SCOREBOARD_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
@@ -146,7 +146,7 @@ def change_team():
         return jsonify({"error": "Invalid team points value"}), 400
 
     # Load game data from file
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     # Find the index for the specified team
@@ -166,7 +166,7 @@ def change_team():
     game_data["Colors"][index] = team_color
 
     # Write the updated data back to the JSON file
-    with open(GAME_FILE, "w") as game_file:
+    with open(SCOREBOARD_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
@@ -179,7 +179,7 @@ def remove_team():
         return jsonify({"error": "Missing team name"}), 400
 
     # Load game data from file
-    with open(GAME_FILE, "r") as game_file:
+    with open(SCOREBOARD_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     if "Teams" not in game_data:
@@ -198,7 +198,7 @@ def remove_team():
         del game_data["Colors"][index]
 
     # Write back the updated game data
-    with open(GAME_FILE, "w") as game_file:
+    with open(SCOREBOARD_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
