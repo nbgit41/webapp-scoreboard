@@ -328,6 +328,13 @@ def scoreboard():
         print_with_color("/", "#454545")
     return render_template("scoreboard.html", version=int(time.time()), timestamp=int(time.time()))
 
+@app.route("/embedded")
+def embedded():
+    if deb:
+        print_with_color("/embedded", "#454545")
+    return render_template("scoreboard.html", version=int(time.time()), timestamp=int(time.time()))
+
+
 @app.route("/backend")
 def backend():
     if deb:
@@ -340,7 +347,6 @@ def run_flask():
     else:
         app.run(host="0.0.0.0", port=port_poggies, debug=True, use_reloader=False)
 
-    #only accessible locally
 
 def main():
     run_flask()

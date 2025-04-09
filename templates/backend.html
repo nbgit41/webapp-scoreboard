@@ -45,33 +45,9 @@
                 </div>
             </div>
 
-            <div class="scoreboard">
-                <div id="timer-container" class="timer">
-                    <h1 id="timer">00:00</h1>
-                </div>
-                <br>
-                <div id="scores" class="scores">
-                </div>
-                <br>
-                <div id="baseball-stuff" class="baseball-stuff">
-                    <div id="balls" class="balls">
-                        <h1>Balls</h1>
-                        <h2 id="balls-number"></h2>
-                    </div>
-                    <div id="strikes" class="strikes">
-                        <h1>Strikes</h1>
-                        <h2 id="strikes-number"></h2>
-                    </div>
-                    <div id="outs" class="outs">
-                        <h1>Outs</h1>
-                        <h2 id="outs-number"></h2>
-                    </div>
-                    <div id="innings" class="innings">
-                        <h1>Innings</h1>
-                        <h2 id="inning-number"></h2>
-                    </div>
-                </div>
-            </div>
+            <iframe src="{{ url_for('embedded') }}" width="600" height="400">
+                Your browser does not support iframes.
+            </iframe>
         </div>
 
         <br>
@@ -146,7 +122,6 @@
             </div>
         </div>
 
-        <script src="/static/scoreboard.js?v={{ timestamp }}"></script>
         <script src="/static/backend.js?v={{ timestamp }}"></script>
     </body>
 </html>

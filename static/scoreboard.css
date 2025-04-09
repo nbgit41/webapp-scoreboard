@@ -13,6 +13,11 @@
     border: calc(.5vw + .25vh) solid #454545;
     border-radius: calc(2vw + 1vh);
     box-shadow: black 5px 5px 20px 1px;
+    width: fit-content;
+    position: absolute;
+    top: 1%;
+    left: 50%;
+    transform: translate(-50%, -1%);
 }
 
 .scores {

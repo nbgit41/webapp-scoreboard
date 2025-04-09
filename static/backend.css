@@ -1,18 +1,3 @@
-:root {
-  --scale: 0.5;
-  --base-margin: calc(-10vw + -5vh);
-}
-
-.scoreboard {
-    background-color: rgba(00,00,00,.1);
-    border: calc(.5vw + .25vh) solid #454545;
-    border-radius: calc(2vw + 1vh);
-    box-shadow: black 5px 5px 20px 1px;
-    transform: scale(var(--scale));
-    margin: calc(var(--base-margin) * var(--scale));
-}
-
-
 #team-selection, .buttons {
     font-size: calc(1vw + 1vh);
     position: relative;
