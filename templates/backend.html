@@ -45,6 +45,7 @@
                 </div>
             </div>
 
+            <!--suppress HtmlUnknownTarget -->
             <iframe src="{{ url_for('embedded') }}" width="600" height="400">
                 Your browser does not support iframes.
             </iframe>
@@ -93,7 +94,7 @@
                 <form id="add-team-form">
                     <input class="input" type="text" name="team-name" placeholder="Team Name" required>
                     <input class="input" type="text" name="team-points" placeholder="Team Points" required>
-                    <input class="input" type="text" name="team-color" placeholder="Team Color" required>
+                    <label for="team-color" class="input">Team Color <input id="team-color" type="color" name="team-color" placeholder="Team Color" required></label>
                     <input class="button" type="submit" value="Add Team">
                 </form>
             </div>
@@ -104,9 +105,9 @@
                 <h3>Change Team</h3>
                 <form id="change-team-form">
                     <input class="input" type="text" name="team-name" placeholder="Team Name" required>
-                    <input class="input" type="text" name="team-new-name" placeholder="New Team Name" required>
-                    <input class="input" type="text" name="team-points" placeholder="Team Points" required>
-                    <input class="input" type="text" name="team-color" placeholder="Team Color" required>
+                    <input class="input" type="text" name="team-new-name" placeholder="New Team Name">
+                    <input class="input" type="text" name="team-points" placeholder="Team Points">
+                    <label for="change-team-color" class="input">Team Color <input id="change-team-color" type="color" name="team-color" placeholder="Team Color"></label>
                     <input class="button" type="submit" value="Change Team">
                 </form>
             </div>
