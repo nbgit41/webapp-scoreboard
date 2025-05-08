@@ -1,5 +1,14 @@
 let clicked = null;
 
+// Helper to format team names to Title Case and normalize case-insensitive input
+function formatTeamName(name) {
+    return name
+        .trim()
+        .split(/\s+/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
 async function getGameStuff() {
     await fetch('/get-game-json')
         .then(response => response.json())
@@ -16,6 +25,7 @@ async function getGameStuff() {
                     container.appendChild(teamElement);
                 }
                 teamElement.value = team;
+                teamElement.setAttribute('data-team-name', team.trim().toLowerCase());
                 teamElement.onclick = () => {
                     document.querySelectorAll('.button').forEach(button => {
                         button.style.background = "black";
@@ -23,7 +33,7 @@ async function getGameStuff() {
                     setClicked(team);
                     teamElement.style.background = "red";
                 };
-                if (clicked === team) {
+                if (clicked && clicked.toLowerCase() === team.toLowerCase()) {
                     teamElement.style.background = "red";
                 }
             });
@@ -44,7 +54,6 @@ async function getGameStuff() {
 
 getGameStuff();
 
-
 function setClicked(teamName) {
     clicked = teamName;
     console.log('clicked for team: ' + clicked);
@@ -53,38 +62,39 @@ function setClicked(teamName) {
 function changeScore(value) {
     console.log('attempting to change score of ' + clicked + ' by ' + value);
     fetch(`/change-score/${clicked}/${value}`)
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        getScoresPlz()
-    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            getScoresPlz()
+        })
 }
 
 function getScoresPlz() {
     console.log('attempting to getScoresPlz');
     fetch('/get-scores')
-    .then(response => response.json())
-    .then(data => {
-        // Loop over each team and update its score element
-        data.Teams.forEach((team, index) => {
-            // Build the element id that you assigned when creating the element
-            const scoreElement = document.getElementById(team + '-score');
-            if (scoreElement) {
-                scoreElement.textContent = data.Scores[index];
-            }
+        .then(response => response.json())
+        .then(data => {
+            // Loop over each team and update its score element
+            data.Teams.forEach((team, index) => {
+                const key = team.trim().toLowerCase();
+                const scoreElement = document.querySelector(`[data-team-name="${key}"]-score`);
+                if (scoreElement) {
+                    scoreElement.textContent = data.Scores[index];
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching scores:', error);
         });
-    })
-    .catch(error => {
-        console.error('Error fetching scores:', error);
-    });
 }
 
 // Event listener for the "Add Team" form
 document.getElementById('add-team-form').addEventListener('submit', async function(e) {
     e.preventDefault(); // Prevent the form's default submit behavior
 
-    // Retrieve form values
-    const teamName = this.elements['team-name'].value;
+    // Retrieve and format form values
+    const rawTeamName = this.elements['team-name'].value;
+    const teamName = formatTeamName(rawTeamName);
     const teamPoints = this.elements['team-points'].value;
     const teamColor = this.elements['team-color'].value;
 
@@ -99,9 +109,9 @@ document.getElementById('add-team-form').addEventListener('submit', async functi
         });
         const result = await response.json();
         console.log('Team added:', result);
-        // Refresh the team list if needed
+        // Refresh the team list
         getGameStuff();
-        // Optionally clear the form fields
+        // Clear the form fields
         this.reset();
     } catch (error) {
         console.error('Error adding team:', error);
@@ -112,9 +122,11 @@ document.getElementById('add-team-form').addEventListener('submit', async functi
 document.getElementById('change-team-form').addEventListener('submit', async function(e) {
     e.preventDefault(); // Prevent the form's default submit behavior
 
-    // Retrieve form values
-    const teamName = this.elements['team-name'].value;
-    const teamNewName = this.elements['team-new-name'].value;
+    // Retrieve and format form values
+    const rawOldName = this.elements['team-name'].value;
+    const teamName = formatTeamName(rawOldName);
+    const rawNewName = this.elements['team-new-name'].value;
+    const teamNewName = formatTeamName(rawNewName);
     const teamPoints = this.elements['team-points'].value;
     const teamColor = this.elements['team-color'].value;
 
@@ -129,19 +141,21 @@ document.getElementById('change-team-form').addEventListener('submit', async fun
         });
         const result = await response.json();
         console.log('Team updated:', result);
-        // Refresh the team list or update the UI as needed
+        // Refresh the team list
         getGameStuff();
-        // Optionally clear the form fields
+        // Clear the form fields
         this.reset();
     } catch (error) {
         console.error('Error updating team:', error);
     }
 });
 
+// Event listener for the "Remove Team" form
 document.getElementById('remove-team-form').addEventListener('submit', async function(e) {
     e.preventDefault(); // Prevent the default form submission
 
-    const teamName = this.elements['team-name'].value;
+    const rawTeamName = this.elements['team-name'].value;
+    const teamName = formatTeamName(rawTeamName);
 
     // Confirmation prompt
     if (!confirm(`Are you sure you want to remove the team: ${teamName}?`)) {
@@ -158,126 +172,59 @@ document.getElementById('remove-team-form').addEventListener('submit', async fun
         });
         const result = await response.json();
         console.log('Team removed:', result);
-        // Refresh the team list on the backend
+        // Refresh the team list
         getGameStuff();
         // Clear the form fields
         this.reset();
     } catch (error) {
         console.error('Error removing team:', error);
     }
-    getGameStuff();
 });
 
-
-// Function to start the timer
+// Timer and baseball toggles remain unchanged
 function startTimer() {
-  fetch('/start-timer')
-    .then(response => response.json())
-    .then(data => {
-      console.log('Timer started:', data);
-      // Optionally update the UI to reflect the timer's state
-    })
-    .catch(error => console.error('Error starting timer:', error));
+    fetch('/start-timer')
+        .then(response => response.json())
+        .then(data => console.log('Timer started:', data))
+        .catch(error => console.error('Error starting timer:', error));
 }
 
-// Function to pause the timer
 function pauseTimer() {
-  fetch('/pause-timer')
-    .then(response => response.json())
-    .then(data => {
-      console.log('Timer paused:', data);
-      // Optionally update the UI to reflect the timer's state
-    })
-    .catch(error => console.error('Error pausing timer:', error));
+    fetch('/pause-timer')
+        .then(response => response.json())
+        .then(data => console.log('Timer paused:', data))
+        .catch(error => console.error('Error pausing timer:', error));
 }
 
-// Function to reset the timer
 function resetTimer() {
-  fetch('/reset-timer')
-    .then(response => response.json())
-    .then(data => {
-      console.log('Timer reset:', data);
-      // Optionally update the UI to reflect the timer's state
-    })
-    .catch(error => console.error('Error reseting timer:', error));
+    fetch('/reset-timer')
+        .then(response => response.json())
+        .then(data => console.log('Timer reset:', data))
+        .catch(error => console.error('Error resetting timer:', error));
 }
 
-// Function to set the timer to a specific duration (in seconds)
-// Example: setTimer(600) would set the countdown to 10 minutes
 function setTimer(duration) {
-  fetch('/set-timer', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ duration: duration })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Timer set:', data);
-    // Optionally update the UI to reflect the new timer duration
-  })
-  .catch(error => console.error('Error setting timer:', error));
+    fetch('/set-timer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ duration })
+    })
+        .then(response => response.json())
+        .then(data => console.log('Timer set:', data))
+        .catch(error => console.error('Error setting timer:', error));
 }
-
 
 function baseballModeToggle() {
-    fetch('/toggle-baseball-stuff', {})
-    .then(response => response.json())
-    .then(data => {
-        console.log('Toggle baseball stuff:', data);
-    })
+    fetch('/toggle-baseball-stuff').then(r => r.json()).then(data => console.log('Toggle baseball stuff:', data));
 }
 
 function timerToggle() {
-    fetch('/toggle-timer', {})
-    .then(response => response.json())
-    .then(data => {
-        console.log('Toggle timer:', data);
-    })
-}
-
-
-function changeBaseballValue(stat, amount) {
-    fetch(`/update-baseball/${stat}/${amount}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            console.log(`${stat} updated: `, data[stat]);
-            // Refresh the display after updating the stat
-            updateBaseballDisplay();
-        })
-        .catch(err => console.error("Error updating baseball stat:", err));
+    fetch('/toggle-timer').then(r => r.json()).then(data => console.log('Toggle timer:', data));
 }
 
 function checkTogglesPlz() {
-    fetch('/check-baseball-stuff')
-    .then(response => response.json())
-    .then(data => {
-        // console.log(data);
-        if (data === "no") {
-            // console.log("its false")
-            document.getElementById('baseball-mode-toggle').checked = false;
-        }
-        else {
-            // console.log("its not false")
-            document.getElementById('baseball-mode-toggle').checked = true;
-        }
-    })
-
-    fetch('/check-timer-toggle')
-    .then(response => response.json())
-    .then(data => {
-        // console.log(data);
-        if (data === "no") {
-            // console.log("its false")
-            document.getElementById('timer-toggle-toggle').checked = false;
-        }
-        else {
-            // console.log("its not false")
-            document.getElementById('timer-toggle-toggle').checked = true;
-        }
-    })
-
+    fetch('/check-baseball-stuff').then(r => r.json()).then(data => document.getElementById('baseball-mode-toggle').checked = (data !== "no"));
+    fetch('/check-timer-toggle').then(r => r.json()).then(data => document.getElementById('timer-toggle-toggle').checked = (data !== "no"));
 }
 
-setInterval(checkTogglesPlz, 2000)
+setInterval(checkTogglesPlz, 2000);
