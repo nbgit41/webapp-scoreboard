@@ -1,5 +1,33 @@
 {
   "deb": false,
   "port": 8540,
-  "run_locally": false
+  "run_locally": true,
+
+    "preset_colors": {
+    "blue":      "#4287f5",
+    "red":       "#FF0000",
+    "green":     "#00FF00",
+    "yellow":    "#FFFF00",
+    "orange":    "#FFA500",
+    "purple":    "#800080",
+    "black":     "#000000",
+    "white":     "#FFFFFF",
+    "pink":      "#FFC0CB",
+    "cyan":      "#00FFFF",
+    "magenta":   "#FF00FF",
+    "lime":      "#00FF00",
+    "navy":      "#000080",
+    "teal":      "#008080",
+    "olive":     "#808000",
+    "maroon":    "#800000",
+    "gray":      "#808080",
+    "silver":    "#C0C0C0",
+    "gold":      "#FFD700",
+    "brown":     "#A52A2A",
+    "coral":     "#FF7F50",
+    "indigo":    "#4B0082",
+    "violet":    "#EE82EE",
+    "turquoise": "#40E0D0",
+    "salmon":    "#FA8072"
+  }
 }
