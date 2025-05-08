@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import logging, time, json, os
+import logging, time, json, os, re
 # my modules
 from print_with_color import print_with_color
 
@@ -18,7 +18,7 @@ else:
 deb = config.get("deb", True)
 port_poggies = config.get("port", 8540)
 run_locally = config.get("run_locally", True)
-SCOREBOARD_FILE = "scoreboard.json"
+GAME_FILE = "game.json"
 
 # Global dictionary to store baseball state
 baseball_stats = {
@@ -28,9 +28,40 @@ baseball_stats = {
     "inning": 0
 }
 
+# map of color names → hex codes
+DEFAULT_PRESET_COLORS = {
+    "blue":   "#4287f5",
+    "red":    "#FF0000",
+    "green":  "#00FF00",
+    "yellow": "#FFFF00",
+    "orange": "#FFA500",
+    "purple": "#800080",
+    "black":  "#000000",
+    "white":  "#FFFFFF",
+    "pink": "#FFC0CB",
+    "cyan": "#00FFFF",
+    "magenta": "#FF00FF",
+    "lime": "#00FF00",
+    "navy": "#000080",
+    "teal": "#008080",
+    "olive": "#808000",
+    "maroon": "#800000",
+    "gray": "#808080",
+    "silver": "#C0C0C0",
+    "gold": "#FFD700",
+    "brown": "#A52A2A",
+    "coral": "#FF7F50",
+    "indigo": "#4B0082",
+    "violet": "#EE82EE",
+    "turquoise": "#40E0D0",
+    "salmon": "#FA8072",
+}
+
+# after loading `config = json.load(...) or {}`
+PRESET_COLORS = config.get("preset_colors", DEFAULT_PRESET_COLORS)
 
 # Timer state variables
-countdown_duration = 300  # default duration in seconds (e.g., 5 minutes)
+countdown_duration = 120  # default duration in seconds (e.g., 5 minutes)
 timer_remaining = countdown_duration
 timer_start = None        # time when the timer was started/resumed
 timer_running = False     # flag to track if the timer is running
@@ -45,9 +76,26 @@ app = Flask(__name__)
 
 app.config["TEMPLATES_AUTO_RELOAD"] = True # this is the thing that makes it so that I don't have to reload the entire python file for a html change
 
+
+
+def normalize_color(input_color: str) -> str:
+    """
+    Look up a preset name in PRESET_COLORS or validate a #RRGGBB hex.
+    """
+    val = input_color.strip().lower()
+    if val in PRESET_COLORS:
+        return PRESET_COLORS[val]
+    m = re.fullmatch(r'#?([0-9a-f]{6})', val)
+    if m:
+        return "#" + m.group(1)
+    raise ValueError(f"Invalid color: {input_color}")
+
+
+
+
 @app.route("/get-game-json")
 def get_game_json():
-    with open(SCOREBOARD_FILE, "r") as game_file:
+    with open(GAME_FILE, "r") as game_file:
         game_data = json.load(game_file)
     return jsonify(game_data)
 
@@ -60,7 +108,7 @@ def change_scores(team, amount):
         return jsonify({"error": "Invalid amount"}), 400
 
     # Load game data from file
-    with open(SCOREBOARD_FILE, "r") as game_file:
+    with open(GAME_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     # Ensure Scores exists and is initialized for each team
@@ -77,99 +125,142 @@ def change_scores(team, amount):
     game_data["Scores"][team_index] += amount
 
     # Write back the updated data to the JSON file
-    with open(SCOREBOARD_FILE, "w") as game_file:
+    with open(GAME_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
 
 @app.route("/get-scores")
 def get_scores():
-    with open(SCOREBOARD_FILE, "r") as game_file:
+    with open(GAME_FILE, "r") as game_file:
         game_data = json.load(game_file)
     return jsonify(game_data)
-
 
 @app.route("/add-team", methods=["POST"])
 def add_team():
     data = request.get_json()
-    team_name = data.get("teamName")
-    team_points = data.get("teamPoints")
-    team_color = data.get("teamColor")
+    team_name   = data.get("teamName")
+    raw_points  = data.get("teamPoints")
+    raw_color   = data.get("teamColor", "")
 
-    # Validate the input
-    if not team_name or team_points is None or not team_color:
+    if not team_name or raw_points is None or not raw_color:
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
-        team_points = int(team_points)
+        team_points = int(raw_points)
     except ValueError:
         return jsonify({"error": "Invalid team points value"}), 400
 
-    # Load game data from file
-    with open(SCOREBOARD_FILE, "r") as game_file:
-        game_data = json.load(game_file)
+    # normalize color (hex or preset name)
+    try:
+        team_color = normalize_color(raw_color)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
-    # Initialize keys if they don't exist
-    if "Teams" not in game_data:
-        game_data["Teams"] = []
-    if "Scores" not in game_data:
-        game_data["Scores"] = []
-    if "Colors" not in game_data:
-        game_data["Colors"] = []
+    with open(GAME_FILE, "r") as f:
+        game_data = json.load(f)
 
-    # Append the new team's details
+    game_data.setdefault("Teams", [])
+    game_data.setdefault("Scores", [])
+    game_data.setdefault("Colors", [])
+
     game_data["Teams"].append(team_name)
     game_data["Scores"].append(team_points)
     game_data["Colors"].append(team_color)
 
-    # Write the updated data back to the JSON file
-    with open(SCOREBOARD_FILE, "w") as game_file:
-        json.dump(game_data, game_file)
+    with open(GAME_FILE, "w") as f:
+        json.dump(game_data, f)
 
     return jsonify(game_data)
+
+
+# @app.route("/change-team", methods=["POST"])
+# def change_team():
+#     data = request.get_json()
+#     team_name    = data.get("teamName", "").strip()
+#     new_name     = data.get("teamNewName", "").strip()
+#     raw_points   = data.get("teamPoints", "").strip()
+#     raw_color    = data.get("teamColor", "").strip()
+#
+#     # Must at least specify which team to change
+#     if not team_name:
+#         return jsonify({"error": "Missing teamName"}), 400
+#
+#     # Load game data
+#     with open(GAME_FILE, "r") as f:
+#         game_data = json.load(f)
+#
+#     # Find team
+#     try:
+#         idx = game_data["Teams"].index(team_name)
+#     except ValueError:
+#         return jsonify({"error": f"Team {team_name} not found"}), 404
+#
+#     # Change team name if provided
+#     if new_name:
+#         game_data["Teams"][idx] = new_name
+#
+#     # Change points if provided (blank means “keep old”)
+#     if raw_points:
+#         try:
+#             game_data["Scores"][idx] = int(raw_points)
+#         except ValueError:
+#             return jsonify({"error": "Invalid teamPoints value"}), 400
+#
+#     # Change color if provided
+#     if raw_color:
+#         # ensure Colors array exists
+#         if "Colors" not in game_data:
+#             game_data["Colors"] = ["" for _ in game_data["Teams"]]
+#         game_data["Colors"][idx] = raw_color
+#
+#     # Save and return
+#     with open(GAME_FILE, "w") as f:
+#         json.dump(game_data, f)
+#
+#     return jsonify(game_data)
 
 @app.route("/change-team", methods=["POST"])
 def change_team():
     data = request.get_json()
-    team_name = data.get("teamName")
-    team_new_name = data.get("teamNewName", "").strip()  # get and trim the new team name
-    team_points = data.get("teamPoints")
-    team_color = data.get("teamColor")
+    team_name   = data.get("teamName", "").strip()
+    new_name    = data.get("teamNewName", "").strip()
+    raw_points  = data.get("teamPoints", "").strip()
+    raw_color   = data.get("teamColor", "").strip()
 
-    # Validate the required input (teamNewName is optional)
-    if not team_name or team_points is None or not team_color:
-        return jsonify({"error": "Missing required fields"}), 400
+    if not team_name:
+        return jsonify({"error": "Missing teamName"}), 400
+
+    with open(GAME_FILE, "r") as f:
+        game_data = json.load(f)
 
     try:
-        team_points = int(team_points)
-    except ValueError:
-        return jsonify({"error": "Invalid team points value"}), 400
-
-    # Load game data from file
-    with open(SCOREBOARD_FILE, "r") as game_file:
-        game_data = json.load(game_file)
-
-    # Find the index for the specified team
-    try:
-        index = game_data["Teams"].index(team_name)
+        idx = game_data["Teams"].index(team_name)
     except ValueError:
         return jsonify({"error": f"Team {team_name} not found"}), 404
 
-    # Update team name only if a new name is provided (non-blank)
-    if team_new_name:
-        game_data["Teams"][index] = team_new_name
+    if new_name:
+        game_data["Teams"][idx] = new_name
 
-    # Update the team's points and color
-    game_data["Scores"][index] = team_points
-    if "Colors" not in game_data:
-        game_data["Colors"] = ["" for _ in game_data["Teams"]]
-    game_data["Colors"][index] = team_color
+    if raw_points:
+        try:
+            game_data["Scores"][idx] = int(raw_points)
+        except ValueError:
+            return jsonify({"error": "Invalid teamPoints value"}), 400
 
-    # Write the updated data back to the JSON file
-    with open(SCOREBOARD_FILE, "w") as game_file:
-        json.dump(game_data, game_file)
+    if raw_color:
+        try:
+            color = normalize_color(raw_color)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        game_data.setdefault("Colors", [""] * len(game_data["Teams"]))
+        game_data["Colors"][idx] = color
+
+    with open(GAME_FILE, "w") as f:
+        json.dump(game_data, f)
 
     return jsonify(game_data)
+
 
 @app.route("/remove-team", methods=["POST"])
 def remove_team():
@@ -179,7 +270,7 @@ def remove_team():
         return jsonify({"error": "Missing team name"}), 400
 
     # Load game data from file
-    with open(SCOREBOARD_FILE, "r") as game_file:
+    with open(GAME_FILE, "r") as game_file:
         game_data = json.load(game_file)
 
     if "Teams" not in game_data:
@@ -198,12 +289,10 @@ def remove_team():
         del game_data["Colors"][index]
 
     # Write back the updated game data
-    with open(SCOREBOARD_FILE, "w") as game_file:
+    with open(GAME_FILE, "w") as game_file:
         json.dump(game_data, game_file)
 
     return jsonify(game_data)
-
-
 
 # Timer endpoints
 
@@ -304,7 +393,6 @@ def toggle_baseball_stuff():
     else:
         baseball_stuff = True
         return jsonify(baseball_stuff)
-
 
 @app.route("/get-baseball", methods=["GET"])
 def get_baseball():
