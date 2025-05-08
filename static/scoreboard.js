@@ -124,6 +124,7 @@ function checkBaseballStuff() {
         else {
             // console.log("its not false")
             document.getElementById('baseball-stuff').style.display = '';
+            document.getElementById('scores').style.top = '40%';
         }
     })
 }
